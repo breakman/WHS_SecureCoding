@@ -1,4 +1,4 @@
-name: secure_coding
+name: secure_code
 channels:
   - defaults
 dependencies:

@@ -1,7 +1,7 @@
 # Secure Coding 과제
 
 ## Tiny Secondhand Shopping Platform 시큐어 코딩 보완 과제
-
+시큐어 코딩 - 요구사항 기능 추가 및 보안 약점 보안 과제 입니다.
 
 ## requirements
 
@@ -9,7 +9,7 @@ anaconda 혹은 miniconda 를 설치해야 합니다.
 - https://docs.anaconda.com/free/miniconda/index.html
 
 ```
-git clone https://github.com/ugonfor/secure-coding
+git clone https://github.com/breakman/WHS_SecureCoding.git
 conda env create -f enviroments.yaml
 ```
 
@@ -20,8 +20,7 @@ conda env create -f enviroments.yaml
 ```
 python app.py
 ```
-만약에 외부 
-if you want to test on external machine, you can utilize the ngrok to forwarding the url.
+만약에 외부에서 테스트 하고 싶으면면 ngrok을 이용해서 URL을 포워딩할 수 있다.
 ```
 # optional
 sudo snap install ngrok
