@@ -1,11 +1,84 @@
 {% extends "base.html" %}
 {% block title %}프로필{% endblock %}
 {% block content %}
-<h2>프로필 관리</h2>
-<p>사용자명: {{ user.username }}</p>
-<form method="post">
-  소개글: <br>
-  <textarea name="bio" rows="4" cols="50">{{ user.bio or '' }}</textarea><br>
-  <button type="submit">프로필 업데이트</button>
-</form>
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">내 정보</h5>
+          <p class="card-text">
+            <strong>아이디:</strong> {{ user.username }}<br>
+            <strong>현재 잔액:</strong> 
+            <span class="fs-4 text-primary">{{ '{:,}'.format(user.balance) }}원</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">자기소개 수정</h5>
+          <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+              <label for="bio" class="form-label">자기소개</label>
+              <textarea class="form-control" id="bio" name="bio" rows="3">{{ user.bio or '' }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">저장</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">최근 거래 내역</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>날짜</th>
+                  <th>구분</th>
+                  <th>금액</th>
+                  <th>잔액</th>
+                  <th>설명</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                  <td>{{ transaction.created_at }}</td>
+                  <td>
+                    {% if transaction.sender_id == user.id %}
+                      <span class="text-danger">출금</span>
+                    {% else %}
+                      <span class="text-success">입금</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if transaction.sender_id == user.id %}
+                      <span class="text-danger">-{{ '{:,}'.format(transaction.amount) }}원</span>
+                    {% else %}
+                      <span class="text-success">+{{ '{:,}'.format(transaction.amount) }}원</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ '{:,}'.format(transaction.balance) }}원</td>
+                  <td>{{ transaction.description or '-' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="5" class="text-center">거래 내역이 없습니다.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

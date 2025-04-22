@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}송금하기{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">내 계좌 정보</h5>
+      <p class="card-text">
+        <strong>현재 잔액:</strong> 
+        <span class="fs-4 text-primary">{{ '{:,}'.format(user.balance) }}원</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="mb-0">송금하기</h2>
+    </div>
+    <div class="card-body">
+      <form method="POST" class="mt-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-3">
+          <label for="receiver" class="form-label">수신자 아이디</label>
+          <input type="text" class="form-control" id="receiver" name="receiver" value="{{ receiver }}" required>
+        </div>
+        <div class="mb-3">
+          <label for="amount" class="form-label">금액</label>
+          <div class="input-group">
+            <input type="number" class="form-control" id="amount" name="amount" value="{{ amount }}" required>
+            <span class="input-group-text">원</span>
+          </div>
+          <div class="form-text">
+            1회 송금한도: 500,000원<br>
+            일일 송금한도: 1,000,000원
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">설명 (선택사항)</label>
+          <input type="text" class="form-control" id="description" name="description">
+        </div>
+        <div class="mb-3">
+          <label for="verification_code" class="form-label">2단계 인증 코드</label>
+          <input type="text" class="form-control" id="verification_code" name="verification_code" required>
+          <div class="form-text">6자리 인증 코드를 입력해주세요.</div>
+        </div>
+        <button type="submit" class="btn btn-primary">송금하기</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}관리자 추가{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>관리자 추가</h2>
+                <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">목록으로</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">관리자 권한 설정</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin_add_admin') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">사용자 아이디</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                            <div class="form-text">관리자 권한을 부여할 사용자의 아이디를 입력해주세요.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="role_level" class="form-label">권한 레벨</label>
+                            <select class="form-select" id="role_level" name="role_level" required>
+                                <option value="">권한 레벨 선택</option>
+                                <option value="1">사용자 관리 (USER_MANAGER)</option>
+                                <option value="2">신고 처리 (REPORT_MANAGER)</option>
+                                <option value="3">로그 조회 (LOG_VIEWER)</option>
+                                <option value="4">최고 관리자 (SUPER_ADMIN)</option>
+                            </select>
+                            <div class="form-text">
+                                권한 레벨 설명:
+                                <ul>
+                                    <li>사용자 관리: 사용자 차단 및 관리자 권한 부여</li>
+                                    <li>신고 처리: 신고 처리 및 승인/거부</li>
+                                    <li>로그 조회: 관리자 활동 로그 조회</li>
+                                    <li>최고 관리자: 모든 권한 보유</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">관리자 비밀번호 확인</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="form-text">관리자 권한을 부여하기 위해 비밀번호를 입력해주세요.</div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">권한 부여</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

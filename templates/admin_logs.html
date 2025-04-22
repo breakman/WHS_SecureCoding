@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}관리자 로그{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>관리자 로그</h2>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin_logs', days=7) }}" class="btn btn-outline-secondary {{ 'active' if days == 7 }}">7일</a>
+                    <a href="{{ url_for('admin_logs', days=30) }}" class="btn btn-outline-secondary {{ 'active' if days == 30 }}">30일</a>
+                    <a href="{{ url_for('admin_logs', days=90) }}" class="btn btn-outline-secondary {{ 'active' if days == 90 }}">90일</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>날짜</th>
+                                    <th>관리자</th>
+                                    <th>작업</th>
+                                    <th>대상</th>
+                                    <th>상세</th>
+                                    <th>상태</th>
+                                    <th>IP 주소</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in logs %}
+                                <tr>
+                                    <td>{{ log.created_at }}</td>
+                                    <td>{{ log.admin_name }}</td>
+                                    <td>{{ log.action }}</td>
+                                    <td>{{ log.target_id or '-' }}</td>
+                                    <td>{{ log.details or '-' }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if log.status == 'success' else 'danger' }}">
+                                            {{ log.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ log.ip_address }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center">로그 내역이 없습니다.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

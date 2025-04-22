@@ -1,44 +1,165 @@
 {% extends "base.html" %}
 {% block title %}대시보드{% endblock %}
 {% block content %}
-<h2>대시보드</h2>
-<h3>등록된 상품</h3>
-<ul>
-  {% for product in products %}
-    <li>
-      <a href="{{ url_for('view_product', product_id=product.id) }}">{{ product.title }}</a>
-      - 가격: {{ product.price }}
-    </li>
-  {% endfor %}
-</ul>
-<p><a href="{{ url_for('new_product') }}">새 상품 등록</a></p>
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>대시보드</h2>
+                <div>
+                    <a href="{{ url_for('report') }}" class="btn btn-warning me-2">신고하기</a>
+                    <a href="{{ url_for('new_product') }}" class="btn btn-primary">상품 등록</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<h3>실시간 채팅</h3>
-<div id="chat">
-  <ul id="messages"></ul>
-  <input id="chat_input" type="text" placeholder="메시지를 입력하세요">
-  <button onclick="sendMessage()">전송</button>
+    <!-- 상품 검색 섹션 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('search') }}" class="row g-3">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="q" placeholder="상품 검색..." value="{{ query or '' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary w-100">검색</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">등록된 상품</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>제목</th>
+                                    <th>가격</th>
+                                    <th>상태</th>
+                                    <th>등록일</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('view_product', product_id=product.id) }}">
+                                            {{ product.title }}
+                                        </a>
+                                    </td>
+                                    <td>{{ '{:,}'.format(product.price) }}원</td>
+                                    <td>
+                                        {% if product.status == 'active' %}
+                                            <span class="badge bg-success">판매중</span>
+                                        {% elif product.status == 'sold' %}
+                                            <span class="badge bg-secondary">판매완료</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">비활성</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ product.created_at }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">등록된 상품이 없습니다.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">실시간 채팅</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chat-messages" style="height: 300px; overflow-y: auto; margin-bottom: 10px;">
+                        <!-- 채팅 메시지가 여기에 표시됩니다 -->
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="message-input" class="form-control" placeholder="메시지를 입력하세요...">
+                        <button class="btn btn-primary" id="send-button">전송</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<script type="text/javascript">
-  var socket = io();
-  socket.on('connect', function() {
-    console.log("채팅 서버에 연결됨");
-  });
-  socket.on('message', function(data) {
-    var messages = document.getElementById('messages');
-    var item = document.createElement('li');
-    item.textContent = data.username + ": " + data.message;
-    messages.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
-  });
-  function sendMessage() {
-    var input = document.getElementById('chat_input');
-    var message = input.value;
-    if (message) {
-      socket.emit('send_message', { 'username': "{{ user.username }}", 'message': message });
-      input.value = "";
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const socket = io();
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const chatMessages = document.getElementById('chat-messages');
+
+    // 소켓 연결 이벤트
+    socket.on('connect', function() {
+        console.log('Connected to server');
+        const systemMessage = document.createElement('div');
+        systemMessage.className = 'text-center text-muted mb-2';
+        systemMessage.textContent = '채팅 서버에 연결되었습니다.';
+        chatMessages.appendChild(systemMessage);
+    });
+
+    // 연결 해제 이벤트
+    socket.on('disconnect', function() {
+        console.log('Disconnected from server');
+        const systemMessage = document.createElement('div');
+        systemMessage.className = 'text-center text-danger mb-2';
+        systemMessage.textContent = '채팅 서버와의 연결이 끊어졌습니다.';
+        chatMessages.appendChild(systemMessage);
+    });
+
+    // 메시지 수신 이벤트
+    socket.on('message', function(data) {
+        console.log('Received message:', data);  // 디버깅용 로그
+        const messageElement = document.createElement('div');
+        messageElement.className = 'mb-2';
+        messageElement.innerHTML = `
+            <strong>${data.username}:</strong> ${data.message}
+            <small class="text-muted">${data.timestamp}</small>
+        `;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+
+    // 메시지 전송 함수
+    function sendMessage() {
+        const message = messageInput.value.trim();
+        if (message) {
+            console.log('Sending message:', message);  // 디버깅용 로그
+            socket.emit('message', {
+                message: message
+            });
+            messageInput.value = '';
+        }
     }
-  }
+
+    // 전송 버튼 클릭 이벤트
+    sendButton.addEventListener('click', sendMessage);
+
+    // Enter 키 이벤트
+    messageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+});
 </script>
 {% endblock %}

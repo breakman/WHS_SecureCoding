@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}사용자 상세 정보{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>사용자 상세 정보</h2>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">목록으로</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">기본 정보</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th>아이디</th>
+                            <td>{{ user.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>상태</th>
+                            <td>
+                                <span class="badge bg-{{ 'success' if user.status == 'active' else 'danger' }}">
+                                    {{ user.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>관리자 여부</th>
+                            <td>
+                                <span class="badge bg-{{ 'primary' if user.is_admin else 'secondary' }}">
+                                    {{ '관리자' if user.is_admin else '일반' }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>잔액</th>
+                            <td>{{ '{:,}'.format(user.balance) }}원</td>
+                        </tr>
+                        <tr>
+                            <th>가입일</th>
+                            <td>{{ user.created_at }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">작업</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('report') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="target_type" value="user">
+                        <input type="hidden" name="target_username" value="{{ user.username }}">
+                        <input type="hidden" name="reason" value="사용자 신고">
+                        <button type="submit" class="btn btn-danger">신고하기</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">등록한 상품</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>제목</th>
+                                    <th>가격</th>
+                                    <th>상태</th>
+                                    <th>등록일</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('view_product', product_id=product.id) }}">
+                                            {{ product.title }}
+                                        </a>
+                                    </td>
+                                    <td>{{ '{:,}'.format(product.price) }}원</td>
+                                    <td>
+                                        {% if product.status == 'active' %}
+                                            <span class="badge bg-success">판매중</span>
+                                        {% elif product.status == 'sold' %}
+                                            <span class="badge bg-secondary">판매완료</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">비활성</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ product.created_at }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">등록한 상품이 없습니다.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

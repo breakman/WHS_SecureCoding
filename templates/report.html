@@ -1,11 +1,84 @@
 {% extends "base.html" %}
 {% block title %}신고하기{% endblock %}
 {% block content %}
-<h2>신고하기</h2>
-<form method="post">
-  신고 대상 (사용자ID 또는 상품ID): <input type="text" name="target_id" required><br>
-  신고 사유: <br>
-  <textarea name="reason" rows="4" cols="50" required></textarea><br>
-  <button type="submit">신고 접수</button>
-</form>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">신고하기</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="mb-3">
+                            <label for="target_type" class="form-label">신고 유형</label>
+                            <select class="form-select" id="target_type" name="target_type" required>
+                                <option value="">선택하세요</option>
+                                <option value="user" {% if target_type == 'user' %}selected{% endif %}>사용자 신고</option>
+                                <option value="product" {% if target_type == 'product' %}selected{% endif %}>상품 신고</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="user_target_div" style="display: none;">
+                            <label for="target_username" class="form-label">신고할 사용자 이름</label>
+                            <input type="text" class="form-control" id="target_username" name="target_username" 
+                                   placeholder="사용자 이름을 입력하세요">
+                        </div>
+
+                        <div class="mb-3" id="product_target_div" style="display: none;">
+                            <label for="target_product" class="form-label">신고할 상품 제목</label>
+                            <input type="text" class="form-control" id="target_product" name="target_product" 
+                                   value="{{ target_product }}" placeholder="상품 제목을 입력하세요">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">신고 사유</label>
+                            <textarea class="form-control" id="reason" name="reason" 
+                                      rows="4" required></textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">신고 접수</button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">취소</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const targetType = document.getElementById('target_type');
+    const userTargetDiv = document.getElementById('user_target_div');
+    const productTargetDiv = document.getElementById('product_target_div');
+
+    function updateFormDisplay() {
+        if (targetType.value === 'user') {
+            userTargetDiv.style.display = 'block';
+            productTargetDiv.style.display = 'none';
+            document.getElementById('target_username').required = true;
+            document.getElementById('target_product').required = false;
+        } else if (targetType.value === 'product') {
+            userTargetDiv.style.display = 'none';
+            productTargetDiv.style.display = 'block';
+            document.getElementById('target_username').required = false;
+            document.getElementById('target_product').required = true;
+        } else {
+            userTargetDiv.style.display = 'none';
+            productTargetDiv.style.display = 'none';
+            document.getElementById('target_username').required = false;
+            document.getElementById('target_product').required = false;
+        }
+    }
+
+    targetType.addEventListener('change', updateFormDisplay);
+    
+    // 페이지 로드 시 초기 상태 설정
+    updateFormDisplay();
+});
+</script>
 {% endblock %}

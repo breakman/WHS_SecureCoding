@@ -1,6 +1,6 @@
-# Secure Coding
+# Secure Coding 과제
 
-## Tiny Secondhand Shopping Platform.
+## Tiny Secondhand Shopping Platform 시큐어 코딩 보완 과제
 
 You should add some functions and complete the security requirements.
 

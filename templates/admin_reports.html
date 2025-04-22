@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}신고 처리 관리{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>신고 처리 관리</h2>
+                <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">사용자 관리로</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>신고 ID</th>
+                                    <th>신고자</th>
+                                    <th>대상자</th>
+                                    <th>신고 유형</th>
+                                    <th>사유</th>
+                                    <th>상태</th>
+                                    <th>신고일</th>
+                                    <th>처리일</th>
+                                    <th>처리자</th>
+                                    <th>작업</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for report in reports %}
+                                <tr>
+                                    <td>{{ report['report_id'] }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin_user_detail', user_id=report['reporter_id']) }}">
+                                            {{ report['reporter_name'] }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('admin_user_detail', user_id=report['target_id']) }}">
+                                            {{ report['target_name'] }}
+                                        </a>
+                                    </td>
+                                    <td>{{ report['target_type'] }}</td>
+                                    <td>{{ report['reason'] }}</td>
+                                    <td>
+                                        {% if report['status'] == 'pending' %}
+                                            <span class="badge bg-warning">대기중</span>
+                                        {% elif report['status'] == 'approved' %}
+                                            <span class="badge bg-success">승인됨</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">거부됨</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ report['created_at'] }}</td>
+                                    <td>{{ report['resolved_at'] or '-' }}</td>
+                                    <td>{{ report['resolved_by_name'] or '-' }}</td>
+                                    <td>
+                                        {% if report['status'] == 'pending' %}
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('handle_report', report_id=report['report_id'], action='approve') }}" 
+                                               class="btn btn-sm btn-success"
+                                               onclick="return confirm('이 신고를 승인하시겠습니까?')">
+                                                승인
+                                            </a>
+                                            <a href="{{ url_for('handle_report', report_id=report['report_id'], action='reject') }}" 
+                                               class="btn btn-sm btn-danger"
+                                               onclick="return confirm('이 신고를 거부하시겠습니까?')">
+                                                거부
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="10" class="text-center">처리 대기 중인 신고가 없습니다.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
