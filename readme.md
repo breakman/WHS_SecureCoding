@@ -20,7 +20,7 @@ conda env create -f enviroments.yaml
 ```
 python app.py
 ```
-만약에 외부에서 테스트 하고 싶으면면 ngrok을 이용해서 URL을 포워딩할 수 있다.
+만약에 외부에서 테스트 하고 싶으면 ngrok을 이용해서 URL을 포워딩할 수 있습니다.
 ```
 # optional
 sudo snap install ngrok
